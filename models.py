@@ -78,6 +78,8 @@ class UserTable:
         if prop not in props:
             Notification(id, f'Invalid field: {prop}. Valid fields are {props}.')
             return False
+        elif prop == 'login':
+            new_value = hashlib.sha256(new_value.encode()).hexdigest()
 
         # Update the inputed info
         self.cur.execute(f"UPDATE users SET {prop} = ? WHERE id = ?",
@@ -86,6 +88,12 @@ class UserTable:
         # Commiting the chanes
         self.conn.commit()
         return True
+    
+    def findUser(self, email):
+        self.cur.execute("SELECT * FROM users WHERE email = ?",(email,))
+        user = self.cur.fetchone()
+        print(user)
+        return user
     
     def showAllVisits(self, user_id):
         # Query the database for the appointment with all the users
@@ -271,10 +279,10 @@ class AppointmentTable:
         
     def cancelAppointment(self, appointment_id):
         # First: Check if the appointment already exist
-        self.cur.execute("SELECT EXISTS(SELECT * FROM appointments WHERE appointment_id = ? AND status = 'occupied')", (appointment_id,))
+        self.cur.execute("SELECT EXISTS(SELECT * FROM appointments WHERE appointment_id = ?)", (appointment_id,))
         exists = self.cur.fetchone()[0]
-        if exists:
-            return None
+        if not exists:
+            return print ('kkkk')
         
         # Second: Update the user_id and status fields for the appointment with the given id
         self.cur.execute("UPDATE appointments SET user_id = ?, status = ? WHERE appointment_id = ?",

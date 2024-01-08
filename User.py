@@ -42,6 +42,10 @@ class User:
         else:
             return Notification('None', 'incorrect email or password')
         
+    def NewPassword(self, new_password):
+        new_password = hashlib.sha256(new_password.encode()).hexdigest()
+        UserTable().updateInfo(self.id, 'password', new_password)
+        
     def update(self, prop, new_value):
         # Check if the user is logged in
         if not UserTable().checkLogin(self.id):
@@ -58,6 +62,16 @@ class User:
         # Changing islogged to false
         if UserTable().updateInfo(self.id, 'islogged', False):
             return Notification(self.id, 'you have logged out!')
+        
+    @staticmethod
+    def findUser(email):
+        user_info = UserTable().findUser(email)
+        if str(user_info[5]) == 'patient':
+            user = Patient(user_info[0], user_info[1], user_info[2], user_info[3], user_info[5])
+            return user
+        elif str(user_info[5]) == 'employee':
+            user = Employee(user_info[0], user_info[1], user_info[2], user_info[3], user_info[5])
+            return user
         
 class Patient(User):
     
@@ -130,6 +144,7 @@ class Employee(User):
             return Notification(self.id,"this appointment doesn't belong to you")
         
         Appointment.cancelVisit(appointment_id)
+        Notification(self.id, f'the patient with this id: {patient_id} and this appointment id: {appointment_id} visit was canceled')
         
     def FinishVisit(self, appointment_id):
         if not UserTable().checkLogin(self.id):
