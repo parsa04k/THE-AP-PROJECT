@@ -37,7 +37,7 @@ to see patients visits enter ......'current visits'
 to delete any patients visit enter 'delete visit'
 to incereas visits enter ..........'incereas visits'
 """)
-u = Patient.signup(21,"akbar","l@l.com","123","patient")
+u = Patient.signup(21,"akbar","l@l.com","123","patient",None)
 u.login("l@l.com","123")
 u.addVisit(1,"1/8/2023")
 
@@ -54,13 +54,12 @@ while True:
         password = input('write password: ')
         role = input('select your role[patient or employee]: ')
         if role == 'patient':
-            user = Patient.signup(id, name, email, password, 'patient')
+            user = Patient.signup(id, name, email, password, 'patient',)
             print('your account have been created')
 
         elif role == 'employee':
-            user = Employee.signup(id, name, email, password, 'employee')
-            clinic_id = int(input('please write which clinic you are working(number): '))
-            user.clinic(clinic_id)
+            clinic_id = int(input('write your clinic_id: '))
+            user = Employee.signup(id, name, email, password, 'employee', clinic_id)
             print('your account have been created')
 
         else:
@@ -69,7 +68,7 @@ while True:
     elif command == 'login':
             email=input("write email: ")
             user = User.findUser(email)
-            print(user.id)
+                
             print('''please write how do you want to login into the system
                   1- use your normal password : write 'normal'
                   2- use temporary password :   write 'temporary''')

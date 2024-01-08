@@ -8,12 +8,14 @@ class User:
                  name     : str,
                  email    : str,
                  password : str,
-                 role     : ['employee','patient']):
-        self.id       = id
-        self.name     = name
-        self.email    = email
-        self.password = password
-        self.role     = role
+                 role     : ['employee','patient'],
+                 clinic_id):
+        self.id        = id
+        self.name      = name
+        self.email     = email
+        self.password  = password
+        self.role      = role
+        self.clinic_id = clinic_id
 
     @classmethod
     def signup(cls,
@@ -21,16 +23,17 @@ class User:
                name     : str,
                email    : str,
                password : str,
-               role):
+               role,
+               clinic_id):
         
         # Collecting items
-        items = [id, name, email, password, False, role]
+        items = [id, name, email, password, False, role, clinic_id]
         
         # registering and saving user in database
         UserTable().register(items)
         
         # saving user in class
-        user = cls(id, name, email, password, role)
+        user = cls(id, name, email, password, role, clinic_id)
         Notification(id, 'account created!')
         return user
     
@@ -67,16 +70,16 @@ class User:
     def findUser(email):
         user_info = UserTable().findUser(email)
         if str(user_info[5]) == 'patient':
-            user = Patient(user_info[0], user_info[1], user_info[2], user_info[3], user_info[5])
+            user = Patient(user_info[0], user_info[1], user_info[2], user_info[3], user_info[5], None)
             return user
         elif str(user_info[5]) == 'employee':
-            user = Employee(user_info[0], user_info[1], user_info[2], user_info[3], user_info[5])
+            user = Employee(user_info[0], user_info[1], user_info[2], user_info[3], user_info[5], user_info[6])
             return user
         
 class Patient(User):
     
-    def __init__(self, id, name, email, password, role):
-        super().__init__(id, name, email, password, role)
+    def __init__(self, id, name, email, password, role, clinic_id):
+        super().__init__(id, name, email, password, role, clinic_id)
     
     def addVisit(self, clinic_id, date_time):#------------------------->steps:
         # Check if the user is logged in                                    # 1- check login
@@ -123,17 +126,14 @@ class Patient(User):
         
 class Employee(User):
     
-    def __init__(self, id, name, email, password, role):
-        super().__init__(id, name, email, password, role)
-        
-    def clinic(self, clinic_id):
-        self.clinic_id = clinic_id
+    def __init__(self, id, name, email, password, role, clinic_id):
+        super().__init__(id, name, email, password, role, clinic_id)
         
     def showAllVisits(self):#--------------------------------->steps:
         # Check if the user is logged in                                    # 1- check login
         if not UserTable().checkLogin(self.id):
             return Notification(self.id, "you are not logged in to the system")
-        ClinicTable().viewAppointments(self.clinic_id, self.id)
+        ClinicTable().viewAppointments(self.clinic_id)
         
     def cancelPatientVisit(self, patient_id, appointment_id):#--------------------------------->steps:
         # Check if the user is logged in                                    # 1- check login

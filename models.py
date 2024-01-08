@@ -17,14 +17,15 @@ class UserTable:
         
     # Creating a user table that save the info of every person inside
     def createTable(self):
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS users(
+         self.cur.execute("""
+                            CREATE TABLE IF NOT EXISTS users(
                                 id INTEGER PRIMARY KEY,
                                 name TEXT,
                                 email TEXT UNIQUE,
                                 password TEXT,
                                 islogged BOOLEAN,
-                                roles TEXT CHECK( roles IN ('patient', 'employee') )
-                                )""")
+                                roles TEXT CHECK( roles IN ('patient', 'employee') ),
+                                clinic_id INTEGER )""")
                             
     def register(self, items):
         
@@ -35,7 +36,7 @@ class UserTable:
         items[3]      = password_hash
         
         # Getting info
-        self.cur.execute("""INSERT OR IGNORE INTO users VALUES(?,?,?,?,?,?)""", items)
+        self.cur.execute("""INSERT OR IGNORE INTO users VALUES(?,?,?,?,?,?,?)""", items)
         
         self.conn.commit()
         
@@ -92,7 +93,6 @@ class UserTable:
     def findUser(self, email):
         self.cur.execute("SELECT * FROM users WHERE email = ?",(email,))
         user = self.cur.fetchone()
-        print(user)
         return user
     
     def showAllVisits(self, user_id):
@@ -174,10 +174,11 @@ class ClinicTable:
         # First: Query the database for the appointments with the given clinic_id
         self.cur.execute("SELECT * FROM appointments WHERE clinic_id = ?", (clinic_id,))
         appointments = self.cur.fetchall()
-
+        
         # Second: If the clinic has appointments
         if appointments:
-            return appointments
+            for appointment in appointments:
+                print(appointment)
         else:
             return Notification('None', 'No appointments found for this clinic.')
         
@@ -273,7 +274,6 @@ class AppointmentTable:
         # Commit the changes
         self.conn.commit()
         return True
-        
         
         
         
