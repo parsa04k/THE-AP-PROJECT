@@ -7,6 +7,10 @@
 """
 import sqlite3 as sq
 import hashlib
+import socket
+import geocoder
+from datetime import datetime
+import requests
 from notif import *
 class UserTable:
     
@@ -168,7 +172,6 @@ class ClinicTable:
                          (new_value, clinic_id))
         # Third: Commiting the chanes
         self.conn.commit()
-        Notification('None', 'capacity have changed')
         
     def viewAppointments(self, clinic_id):
         # First: Query the database for the appointments with the given clinic_id
@@ -204,17 +207,18 @@ class ClinicTable:
         else:
             return Notification(emp_id, 'No appointments found for this clinic.')
     
-    def Names(self):
+    def names(self):
         self.cur.execute("SELECT name FROM clinics")
         names = self.cur.fetchall()
+        names = [name[0] for name in names]
         return names
     
     # Not recommended for large data
-    def read(self):
-        self.cur.execute("SELECT * FROM clinics")
+    def read(self, name):
+        self.cur.execute("SELECT * FROM clinics WHERE name = ?",(name,))
         rows = self.cur.fetchall()
         for row in rows:
-            return print(f'id: {rows[0]}, name: {row[1]}')
+            print(f'id: {row[0]}, name: {row[1]}')
     
      
 class AppointmentTable:
@@ -395,12 +399,47 @@ class AppointmentTable:
                 else:
                     break
         
+    def getAppointmentID(self):
+        self.cur.execute(f"PRAGMA table_info(appointments)")
+        if self.cur.fetchall():
+            self.cur.execute("SELECT IFNULL(MAX(appointment_id), 0) FROM appointments")
+            id = self.cur.fetchone()[0]
+        else:
+            id = 0
+            
+        return id
+    
     def read(self):
         self.cur.execute("""SELECT * FROM appointments""")
         rows = self.cur.fetchall()
         return rows
     
+class LoginTable:
     
+    def __init__(self):
+        self.conn = sq.connect('database.db', timeout=10)
+        self.cur  = self.conn.cursor()
+        self.createTable()
+        
+    def createTable(self):
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS login (
+                                user_id,
+                                date_time DATE,
+                                ip TEXT,
+                                FOREIGN KEY(user_id) REFERENCES users(id)
+                                )""")
+      
+    @staticmethod  
+    def get_ip():
+        # Get public IP address
+        response = requests.get('https://api.ipify.org?format=json')
+        ip = response.json()['ip']
 
+        return ip
     
+    def add(self, user_id):
+        ip = LoginTable.get_ip()
+        self.cur.execute("INSERT OR IGNORE INTO login VALUES(?,?,?)""",
+                        (user_id, datetime.now(), ip,))   
+        self.conn.commit()     
     

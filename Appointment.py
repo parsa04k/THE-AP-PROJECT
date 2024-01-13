@@ -1,7 +1,7 @@
 from models import *
 
 class Appointment:
-    appointment_id = 1
+    appointment_id = AppointmentTable().getAppointmentID() + 1
     def __init__(self,
                  appointment_id,
                  clinic_id,
