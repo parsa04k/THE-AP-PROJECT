@@ -16,8 +16,11 @@ class NotificationTable:
                                 )""")
         
     def add(self, items):
+        # Inserting items
         self.cur.execute("""INSERT OR IGNORE INTO notification VALUES(?,?,?,?)""",
                         items)
+        
+        # Commit
         self.conn.commit()
         
 class Notification:
@@ -35,8 +38,14 @@ class Notification:
         message_with_id   = f"Notification ID: {self.notification_id}. {message_with_time}"
         final_message     = f"User ID: {self.user_id}. {message_with_id}"
         items             = [Notification.notification_id, self.user_id, self.date, self.message]
+        
+        # Add items in table
         NotificationTable().add(items)
+        
+        # Incereas notification id
         Notification.notification_id += 1
+        
+        # Sending message
         print(final_message)
 
 

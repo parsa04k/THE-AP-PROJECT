@@ -438,8 +438,13 @@ class LoginTable:
         return ip
     
     def add(self, user_id):
+        # Get ip address
         ip = LoginTable.get_ip()
+        
+        # Inserting items in table
         self.cur.execute("INSERT OR IGNORE INTO login VALUES(?,?,?)""",
-                        (user_id, datetime.now(), ip,))   
+                        (user_id, datetime.now(), ip,)) 
+        
+        # Commit   
         self.conn.commit()     
     
