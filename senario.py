@@ -166,7 +166,7 @@ while True:
         try:
             if isinstance(user, Patient):
                 name = input('search the clinic name that you want a visit in: ')
-                print('here are some of the clinics with similar name to what you searched')
+                print('here are some of the clinics with similar name to what you searched: ')
                 names = find_similar_names(name)
                 if names == False:
                     print('there is no clinic with that name')
@@ -204,7 +204,6 @@ while True:
         except NameError:
             print('please login or register first to use our services')
     
-    # edame dastoorat
     elif command == "current visits":
         try:
             if isinstance(user, Employee):

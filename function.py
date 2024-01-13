@@ -26,8 +26,4 @@ def find_similar_names(name, name_list = ClinicTable().names(), cutoff=0.6):
     for name in similar_names:
         ClinicTable().read(name)
         
-    return True
-
-
-
-        
+    return True 
