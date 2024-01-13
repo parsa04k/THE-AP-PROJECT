@@ -48,6 +48,3 @@ class Notification:
         # Sending message
         print(final_message)
 
-
-#notification = Notification(1234, "Your registration was done")
-#notification.send()
